@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container" style="margin-bottom: 60px;">
+    <div id="tl"></div>
+    </div>
+    <div class="menu">
+      <form><input type="button" id="btn" class="btn btn-primary box" value="送信" /><input type="text" class="form-control box tx" id="name" placeholder="名前"/><input type="text" class="form-control box tx" id="msg" placeholder="内容"/></form>
+    </div>
+    <style>
+      .box{
+        float: left;
+      }
+
+      .btn{
+        width: 20%;
+      }
+
+      .tx{
+        width: 35%;
+        margin-left: 5%;
+      }
+
+      .menu {
+        position: fixed;
+        bottom: 0;
+      }
+
+      .menu {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        z-index:999;
+        height: 50px;
+      }
+    </style>
+    <script>
+        const tl = document.getElementById("tl");
+        const sock = new WebSocket("ws://localhost:9999");
+
+        sock.addEventListener("open", e => {
+            console.log("接続が開かれたときに呼び出されるイベント");
+        });
+
+        sock.addEventListener("message", e => {
+            console.log("サーバーからメッセージを受信したときに呼び出されるイベント");
+            console.log(e.data);
+            var json = JSON.parse(e.data);
+            if(json.res === "msg"){
+              var newElement = document.createElement("div");
+              var trpElement = document.createElement("b");
+              trpElement.appendChild(document.createTextNode(json.name + " : "));
+              newElement.appendChild(trpElement);
+              newElement.appendChild(document.createTextNode(json.text));
+              newElement.setAttribute("class","alert alert-secondary");
+              newElement.setAttribute("role", "alert");
+              var secondElement = document.createElement("p");
+              secondElement.appendChild(document.createTextNode(json.time));
+              secondElement.setAttribute("class", "mb-0");
+              newElement.appendChild(secondElement);
+              tl.appendChild(newElement);         
+            }else if(json.res === "join"){
+              var newElement = document.createElement("div");
+              newElement.appendChild(document.createTextNode("SystemLog : " + json.text));
+              newElement.setAttribute("class","alert alert-primary");
+              newElement.setAttribute("role", "alert");
+              var secondElement = document.createElement("p");
+              secondElement.appendChild(document.createTextNode(json.time));
+              secondElement.setAttribute("class", "mb-0");
+              newElement.appendChild(secondElement);
+              tl.appendChild(newElement);
+            }
+        });
+
+        sock.addEventListener("close", e => {
+            console.log("接続が閉じられたときに呼び出されるイベント");
+        });
+
+        sock.addEventListener("error", e => {
+            console.log("エラーが発生したときに呼び出されるイベント");
+        });
+
+        btn.addEventListener("click", e => {
+          const msg = document.getElementById("msg").value;
+          const name = document.getElementById("name").value;
+          sock.send(JSON.stringify({"msg" : msg, "name" : name}));
+        });
+    </script>
+</body>
+</html
