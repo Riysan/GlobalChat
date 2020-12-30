@@ -17,7 +17,7 @@ def rp(client, server, message):
     msg = j.dumps({"res" : "msg", "time" : time, "text" :  json["msg"], "name" : json["name"]})
     server.send_message_to_all(str(msg))    
 
-server = WebsocketServer(9999, host="localhost")
+server = WebsocketServer(80)
 server.set_fn_new_client(new_client)
 server.set_fn_message_received(rp)
 server.run_forever()
